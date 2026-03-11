@@ -29,7 +29,7 @@ export default function Login() {
     setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
     e.preventDefault();
 
@@ -42,21 +42,36 @@ export default function Login() {
 
     setLoading(true);
 
-    // simulación de login
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password
+        })
+      });
 
-      setLoading(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Error de login");
+      }
 
       sessionStorage.setItem(
         "user",
-        JSON.stringify({
-          username: form.username
-        })
+        JSON.stringify({ username: form.username })
       );
 
       navigate("/");
 
-    }, 1200);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -4,12 +4,13 @@ from fastapi.openapi.utils import get_openapi
 
 from src.models.persistence import engine, Base
 from src.routers.user_routes import router as user_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
     title="API",
     version="1.0.0",
-    description="Documentación de la API de usuarios y audiometrías."
+    description="Documentación de la API de CONIITI."
 )
 
 # Configuración CORS
