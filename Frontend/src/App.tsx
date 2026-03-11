@@ -7,6 +7,7 @@ import Inscripciones from "./Inscripciones";
 import Ferias from "./Ferias";
 import Noticias from "./Noticias";
 import Login from "./Login";
+import Dashboard from "./Dashboard";
 import Register from "./Register"; // ← IMPORTANTE
 
 function Layout() {
@@ -17,7 +18,8 @@ function Layout() {
     <>
       {/* Ocultar barra en login y register */}
       {location.pathname !== "/login" &&
-       location.pathname !== "/register" && <Barra />}
+       location.pathname !== "/register" && 
+       location.pathname !== "/dashboard" && <Barra />}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -29,6 +31,9 @@ function Layout() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+         {/*Portal de Usuario*/}
+        <Route path="/dashboard" element={<Dashboard />} />
 
         {/* Ruta por defecto */}
         <Route path="*" element={<Navigate to="/" />} />

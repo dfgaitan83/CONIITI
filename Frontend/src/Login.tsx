@@ -54,7 +54,7 @@ export default function Login() {
         })
       );
 
-      navigate("/");
+      navigate("/dashboard");
 
     }, 1200);
   };
