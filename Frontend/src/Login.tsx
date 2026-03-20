@@ -61,38 +61,22 @@ export default function Login() {
 
       const data = await response.json();
 
-      console.log("Respuesta backend:", data);
-
-      if (response.status === 200) {
-
-        sessionStorage.setItem(
-          "user",
-          JSON.stringify({
-            username: form.username
-          })
-        );
-
-        alert("Inicio de sesión exitoso ✅");
-
-        navigate("/");   // redirección al Home
-
-      } else {
-
-        setError(data.detail || "Usuario o contraseña incorrectos");
-
+      if (!response.ok) {
+        throw new Error(data.detail || "Error de login");
       }
 
-    } catch (err) {
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({ username: form.username })
+      );
 
-      console.error(err);
-      setError("Error conectando con el servidor");
+      navigate("/");
 
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (

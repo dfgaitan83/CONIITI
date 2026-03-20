@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 
-// ── Imágenes ──────────────────────────────────────────
 import ImagenFondo from "./assets/C_C_08.jpg";
 import logoUCatolica from "./assets/LOGO-LOGIN.svg";
 
@@ -48,7 +47,6 @@ const INITIAL = {
 };
 
 export default function Register() {
-
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -57,36 +55,29 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const set = (field: string) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm((p) => ({ ...p, [field]: e.target.value }));
     setError("");
   };
 
   const validateStep = () => {
-
     if (step === 1) {
-      if (form.username.trim().length < 3)
-        return "El usuario debe tener al menos 3 caracteres.";
-      if (form.password.length < 6)
-        return "La contraseña debe tener al menos 6 caracteres.";
-      if (form.password !== form.confirm)
-        return "Las contraseñas no coinciden.";
+      if (form.username.trim().length < 3) return "El usuario debe tener al menos 3 caracteres.";
+      if (form.password.length < 6) return "La contraseña debe tener al menos 6 caracteres.";
+      if (form.password !== form.confirm) return "Las contraseñas no coinciden.";
     }
 
     if (step === 2) {
-      if (!form.full_name.trim())
-        return "Ingresa tu nombre completo.";
-      if (!form.birth_date)
-        return "Selecciona tu fecha de nacimiento.";
-      if (!form.country)
-        return "Selecciona tu país.";
+      if (!form.full_name.trim()) return "Ingresa tu nombre completo.";
+      if (!form.birth_date) return "Selecciona tu fecha de nacimiento.";
+      if (!form.country) return "Selecciona tu país.";
     }
 
     if (step === 3) {
-      if (!form.email.trim())
-        return "Ingresa un correo.";
-      if (!form.phone.trim())
-        return "Ingresa un teléfono.";
+      if (!form.email.trim()) return "Ingresa un correo.";
+      if (!form.phone.trim()) return "Ingresa un teléfono.";
     }
 
     return null;
@@ -98,7 +89,6 @@ export default function Register() {
       setError(err);
       return;
     }
-
     setError("");
     setStep((s) => s + 1);
   };
@@ -108,25 +98,40 @@ export default function Register() {
     setStep((s) => s - 1);
   };
 
-  // ── Registro solo visual ─────────────────────────────
-  const handleSubmit = () => {
-
+  const handleSubmit = async () => {
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/users/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password
+        })
+      });
 
-      setLoading(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Error al registrar usuario");
+      }
+
       setDone(true);
 
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-
-    }, 1200);
+    } catch (err: any) {
+      setError(err.message || "No se pudo completar el registro");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ── Pantalla de éxito ───────────────────────────────
   if (done) {
     return (
       <div className="reg-success-page">
@@ -139,8 +144,7 @@ export default function Register() {
           <h2>¡Registro exitoso!</h2>
 
           <p>
-            Bienvenido a <strong>CONIITI 2026</strong>,{" "}
-            <em>{form.full_name}</em>.
+            Bienvenido a <strong>CONIITI 2026</strong>, <em>{form.full_name}</em>.
           </p>
 
           <p className="reg-success-card__sub">
@@ -161,24 +165,13 @@ export default function Register() {
       initial={{ opacity: 0, x: 80 }}
       animate={{ opacity: 1, x: 0 }}
     >
-
-      {/* PANEL IZQUIERDO */}
       <div className="reg-left">
-
         <img src={ImagenFondo} className="reg-left__bg" />
-
-        <img
-          src={logoUCatolica}
-          className="reg-left__logo"
-        />
-
+        <img src={logoUCatolica} className="reg-left__logo" />
         <div className="reg-left__overlay" />
 
         <div className="reg-left__text">
-          <h1>
-            XII Congreso Internacional de Innovación y Tendencias en Ingeniería
-            (CONIITI 2026)
-          </h1>
+          <h1>XII Congreso Internacional de Innovación y Tendencias en Ingeniería (CONIITI 2026)</h1>
           <p>Tejiendo redes para el futuro profesional</p>
         </div>
 
@@ -186,37 +179,24 @@ export default function Register() {
           {STEPS.map((s) => (
             <div
               key={s.id}
-              className={`reg-stepper__item ${
-                step === s.id ? "active" : ""
-              } ${step > s.id ? "done" : ""}`}
+              className={`reg-stepper__item ${step === s.id ? "active" : ""} ${step > s.id ? "done" : ""}`}
             >
               <div className="reg-stepper__circle">
                 {step > s.id ? "✓" : s.icon}
               </div>
 
-              <span className="reg-stepper__label">
-                {s.label}
-              </span>
+              <span className="reg-stepper__label">{s.label}</span>
 
-              {s.id < STEPS.length && (
-                <div className="reg-stepper__line" />
-              )}
+              {s.id < STEPS.length && <div className="reg-stepper__line" />}
             </div>
           ))}
         </div>
-
       </div>
 
-      {/* PANEL DERECHO */}
       <div className="reg-right">
-
         <div className="reg-form-wrapper">
-
           <div className="reg-step-header">
-
-            <span className="reg-step-num">
-              Paso {step} de {STEPS.length}
-            </span>
+            <span className="reg-step-num">Paso {step} de {STEPS.length}</span>
 
             <h2 className="reg-title">
               {step === 1 && "Crea tu cuenta"}
@@ -231,16 +211,11 @@ export default function Register() {
                 Inicia sesión
               </Link>
             </p>
-
           </div>
 
-          {error && (
-            <div className="reg-alert">⚠ {error}</div>
-          )}
+          {error && <div className="reg-alert">⚠ {error}</div>}
 
-          {/* CAMPOS */}
           <div className="reg-fields">
-
             {step === 1 && (
               <>
                 <input
@@ -290,7 +265,6 @@ export default function Register() {
                   onChange={set("country")}
                 >
                   <option value="">Selecciona país</option>
-
                   {PAISES.map((p) => (
                     <option key={p}>{p}</option>
                   ))}
@@ -318,44 +292,28 @@ export default function Register() {
 
             {step === 4 && (
               <div className="reg-summary">
-
                 <div className="reg-summary__row">
-                  <span className="reg-summary__label">
-                    Usuario
-                  </span>
-                  <span className="reg-summary__value">
-                    {form.username}
-                  </span>
+                  <span className="reg-summary__label">Usuario</span>
+                  <span className="reg-summary__value">{form.username}</span>
                 </div>
 
                 <div className="reg-summary__row">
-                  <span className="reg-summary__label">
-                    Nombre
-                  </span>
-                  <span className="reg-summary__value">
-                    {form.full_name}
-                  </span>
+                  <span className="reg-summary__label">Nombre</span>
+                  <span className="reg-summary__value">{form.full_name}</span>
                 </div>
 
                 <div className="reg-summary__row">
-                  <span className="reg-summary__label">
-                    Email
-                  </span>
-                  <span className="reg-summary__value">
-                    {form.email}
-                  </span>
+                  <span className="reg-summary__label">Email</span>
+                  <span className="reg-summary__value">{form.email}</span>
                 </div>
-
               </div>
             )}
-
           </div>
 
-          {/* BOTONES */}
           <div className="reg-actions">
-
             {step > 1 && (
               <button
+                type="button"
                 className="reg-btn reg-btn--ghost"
                 onClick={back}
               >
@@ -365,6 +323,7 @@ export default function Register() {
 
             {step < 4 && (
               <button
+                type="button"
                 className="reg-btn"
                 onClick={next}
               >
@@ -374,6 +333,7 @@ export default function Register() {
 
             {step === 4 && (
               <button
+                type="button"
                 className="reg-btn reg-btn--gold"
                 onClick={handleSubmit}
                 disabled={loading}
@@ -381,9 +341,7 @@ export default function Register() {
                 {loading ? "Registrando..." : "✓ Confirmar registro"}
               </button>
             )}
-
           </div>
-
         </div>
       </div>
     </motion.div>

@@ -4,6 +4,12 @@ from sqlalchemy.orm import Session
 from src.database import SessionLocal
 from src.models.user_model import User
 from src.schemas.user_schema import UserCreate
+from jose import jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "coniitisecretkey"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -31,9 +37,18 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
     if db_user.password != user.password:
         raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_encode = {
+        "sub": db_user.username,
+        "exp": datetime.utcnow() + access_token_expires
+    }
+
+    access_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
     return {
-    "access_token": db_user.username,
-    "token_type": "bearer"
+        "access_token": access_token,
+        "token_type": "bearer"
     }
 
 @router.post("/")
